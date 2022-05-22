@@ -19,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     })
   }
 
-  private validate(payload: string): Promise<UserEntity | never> {
+  private async validate(payload: string): Promise<UserEntity | never> {
     return this.authenticationHelpers.validateUser(payload)
   }
 }
