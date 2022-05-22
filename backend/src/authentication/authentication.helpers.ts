@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { UserEntity } from '@/users/entities/user.entity'
 import * as bcrypt from 'bcryptjs'
+import { RefreshTokenDto } from './dto/refresh-roken.dto'
 
 @Injectable()
 export class AuthenticationHelpers {
@@ -21,22 +22,37 @@ export class AuthenticationHelpers {
     return this.authRepository.findOne(decoded.id)
   }
 
-  public generateToken({ id, email }: UserEntity): string {
-    return this.jwtService.sign({ id, email })
-  }
-
   public isPasswordValid(password: string, userPassword: string): boolean {
     return bcrypt.compareSync(password, userPassword)
   }
 
+  public async issueTokensPair({ id, email }: UserEntity) {
+    const data = { id, email }
+
+    const accessToken = await this.jwtService.signAsync(data, {
+      expiresIn: '60s', // Number(process.env.JWT_EXPIRES)
+    })
+
+    const refreshToken = await this.jwtService.signAsync(data, {
+      expiresIn: '120s', // Number(process.env.JWT_REFRESH_EXPIRES)
+    })
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      expires_in: 60 * 1000, // Number(process.env.JWT_EXPIRES) * 1000
+    }
+  }
+
   public encodePassword(password: string): string {
     const salt: string = bcrypt.genSaltSync(10)
-
     return bcrypt.hashSync(password, salt)
   }
 
-  private async validate(token: string): Promise<boolean | never> {
-    const decoded: unknown = this.jwtService.verify(token)
+  public async validate({
+    refresh_token: refreshToken,
+  }: RefreshTokenDto): Promise<UserEntity | never> {
+    const decoded: unknown = await this.jwtService.verifyAsync(refreshToken)
 
     if (!decoded) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN)
@@ -48,6 +64,6 @@ export class AuthenticationHelpers {
       throw new UnauthorizedException()
     }
 
-    return true
+    return user
   }
 }

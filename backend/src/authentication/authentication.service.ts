@@ -7,6 +7,7 @@ import { SignUpDto } from './dto/sign-up.dto'
 
 import { UserEntity } from '@/users/entities/user.entity'
 import { AuthenticationHelpers } from './authentication.helpers'
+import { RefreshTokenDto } from './dto/refresh-roken.dto'
 
 @Injectable()
 export class AuthenticationService {
@@ -30,7 +31,8 @@ export class AuthenticationService {
     user.password = this.helpers.encodePassword(password)
 
     await this.authRepository.save(user)
-    return this.helpers.generateToken(user)
+    const tokens = await this.helpers.issueTokensPair(user)
+    return { user, ...tokens }
   }
 
   async signIn({ email, password }: SignInDto) {
@@ -47,11 +49,16 @@ export class AuthenticationService {
     }
 
     this.authRepository.update(user.id, {})
-    return this.helpers.generateToken(user)
+    const tokens = await this.helpers.issueTokensPair(user)
+    return { user, ...tokens }
   }
 
-  async refresh(user: UserEntity) {
-    this.authRepository.update(user.id, {})
-    return this.helpers.generateToken(user)
+  async refresh(tokenDto: RefreshTokenDto) {
+    const user = await this.helpers.validate(tokenDto)
+    if (!user) {
+      throw new HttpException('Conflict', HttpStatus.CONFLICT)
+    }
+    const tokens = await this.helpers.issueTokensPair(user)
+    return { user, ...tokens }
   }
 }

@@ -4,34 +4,34 @@ import {
   Body,
   UseInterceptors,
   ClassSerializerInterceptor,
-  UseGuards,
-  Req,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common'
 import { AuthenticationService } from './authentication.service'
 import { SignInDto } from './dto/sign-in.dto'
 import { SignUpDto } from './dto/sign-up.dto'
-import { JwtGuard } from './guards/jwt.guard'
-// import { Request } from 'express'
-import { UserEntity } from '@/users/entities/user.entity'
+import { RefreshTokenDto } from './dto/refresh-roken.dto'
 
 @Controller('auth')
 export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
+  @UsePipes(new ValidationPipe())
   @Post('sign-up')
   @UseInterceptors(ClassSerializerInterceptor)
   private signUp(@Body() body: SignUpDto) {
     return this.authenticationService.signUp(body)
   }
 
+  @UsePipes(new ValidationPipe())
   @Post('sign-in')
   private signIn(@Body() body: SignInDto) {
     return this.authenticationService.signIn(body)
   }
 
-  @UseGuards(JwtGuard)
+  @UsePipes(new ValidationPipe())
   @Post('refresh')
-  private refresh(@Req() { user }: { user: UserEntity }) {
-    return this.authenticationService.refresh(user)
+  private refresh(@Body() tokenDto: RefreshTokenDto) {
+    return this.authenticationService.refresh(tokenDto)
   }
 }
