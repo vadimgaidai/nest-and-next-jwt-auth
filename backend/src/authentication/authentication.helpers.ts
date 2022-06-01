@@ -2,15 +2,19 @@ import { Injectable, HttpException, HttpStatus, UnauthorizedException } from '@n
 import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { UserEntity } from '@/users/entities/user.entity'
 import * as bcrypt from 'bcryptjs'
-import { RefreshTokenDto } from './dto/refresh-roken.dto'
 
+import { UserEntity } from '@/users/entities/user.entity'
+import { RefreshTokenEntity } from './entities/refresh-token.entity'
+
+import { RefreshTokenDto } from './dto/refresh-roken.dto'
 @Injectable()
 export class AuthenticationHelpers {
   constructor(
     @InjectRepository(UserEntity)
     private readonly authRepository: Repository<UserEntity>,
+    @InjectRepository(RefreshTokenEntity)
+    private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
     private readonly jwtService: JwtService
   ) {}
 
@@ -22,8 +26,25 @@ export class AuthenticationHelpers {
     return this.authRepository.findOne(decoded.id)
   }
 
-  public isPasswordValid(password: string, userPassword: string): boolean {
-    return bcrypt.compareSync(password, userPassword)
+  public async isHashValid(data: string, hash: string): Promise<boolean> {
+    return bcrypt.compareSync(data, hash)
+  }
+
+  // Saved bcrypt refresh_token in DB with user id
+  public async saveRefreshToken({ user_id, refresh_token: refreshToken }: RefreshTokenDto) {
+    const payload: RefreshTokenEntity = await this.refreshTokenRepository.findOne({
+      where: {
+        user_id,
+      },
+    })
+    const token = new RefreshTokenEntity()
+    token.user_id = user_id
+    token.refresh_token = await this.encode(refreshToken)
+    if (!payload) {
+      await this.refreshTokenRepository.save(token)
+      return
+    }
+    await this.refreshTokenRepository.update(payload.id, token)
   }
 
   public async issueTokensPair({ id, email }: UserEntity) {
@@ -37,6 +58,11 @@ export class AuthenticationHelpers {
       expiresIn: '120s', // Number(process.env.JWT_REFRESH_EXPIRES)
     })
 
+    await this.saveRefreshToken({
+      user_id: id,
+      refresh_token: refreshToken,
+    })
+
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
@@ -44,9 +70,9 @@ export class AuthenticationHelpers {
     }
   }
 
-  public encodePassword(password: string): string {
-    const salt: string = bcrypt.genSaltSync(10)
-    return bcrypt.hashSync(password, salt)
+  public async encode(data: string): Promise<string> {
+    const salt: string = await bcrypt.genSaltSync(10)
+    return bcrypt.hashSync(data, salt)
   }
 
   public async validate({

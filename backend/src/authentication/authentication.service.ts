@@ -6,6 +6,7 @@ import { SignInDto } from './dto/sign-in.dto'
 import { SignUpDto } from './dto/sign-up.dto'
 
 import { UserEntity } from '@/users/entities/user.entity'
+import { RefreshTokenEntity } from './entities/refresh-token.entity'
 import { AuthenticationHelpers } from './authentication.helpers'
 import { RefreshTokenDto } from './dto/refresh-roken.dto'
 
@@ -14,6 +15,8 @@ export class AuthenticationService {
   constructor(
     @InjectRepository(UserEntity)
     private authRepository: Repository<UserEntity>,
+    @InjectRepository(RefreshTokenEntity)
+    private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
     private readonly helpers: AuthenticationHelpers
   ) {}
 
@@ -28,7 +31,7 @@ export class AuthenticationService {
 
     user.name = name
     user.email = email
-    user.password = this.helpers.encodePassword(password)
+    user.password = await this.helpers.encode(password)
 
     await this.authRepository.save(user)
     const tokens = await this.helpers.issueTokensPair(user)
@@ -42,9 +45,9 @@ export class AuthenticationService {
       throw new HttpException('No user found', HttpStatus.NOT_FOUND)
     }
 
-    const isPasswordValid: boolean = this.helpers.isPasswordValid(password, user.password)
+    const isHashValid: boolean = await this.helpers.isHashValid(password, user.password)
 
-    if (!isPasswordValid) {
+    if (!isHashValid) {
       throw new HttpException('No user found', HttpStatus.NOT_FOUND)
     }
 
@@ -57,6 +60,22 @@ export class AuthenticationService {
     const user = await this.helpers.validate(tokenDto)
     if (!user) {
       throw new HttpException('Conflict', HttpStatus.CONFLICT)
+    }
+    const refreshToken: RefreshTokenEntity = await this.refreshTokenRepository.findOne({
+      where: {
+        user_id: user.id,
+      },
+    })
+
+    const isHashValid: boolean = await this.helpers.isHashValid(
+      tokenDto.refresh_token,
+      refreshToken.refresh_token
+    )
+
+    console.log(tokenDto.refresh_token, refreshToken.refresh_token, isHashValid)
+
+    if (!isHashValid) {
+      throw new HttpException('Conflict', HttpStatus.UNAUTHORIZED)
     }
     const tokens = await this.helpers.issueTokensPair(user)
     return { user, ...tokens }

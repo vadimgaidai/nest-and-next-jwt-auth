@@ -7,6 +7,7 @@ import { AuthenticationService } from './authentication.service'
 import { AuthenticationController } from './authentication.controller'
 
 import { UserEntity } from '@/users/entities/user.entity'
+import { RefreshTokenEntity } from './entities/refresh-token.entity'
 
 import { JwtStrategy } from './strategies/authentication.strategy'
 import { AuthenticationHelpers } from './authentication.helpers'
@@ -20,7 +21,7 @@ import { AuthenticationHelpers } from './authentication.helpers'
         signOptions: { expiresIn: process.env.JWT_EXPIRES },
       }),
     }),
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([UserEntity, RefreshTokenEntity]),
   ],
   controllers: [AuthenticationController],
   providers: [AuthenticationService, AuthenticationHelpers, JwtStrategy],
