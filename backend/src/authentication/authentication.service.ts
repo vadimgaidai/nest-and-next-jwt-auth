@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
@@ -35,7 +36,8 @@ export class AuthenticationService {
 
     await this.authRepository.save(user)
     const tokens = await this.helpers.issueTokensPair(user)
-    return { user, ...tokens }
+    const { password: userPassword, ...result } = user
+    return { result, ...tokens }
   }
 
   async signIn({ email, password }: SignInDto) {
@@ -53,12 +55,14 @@ export class AuthenticationService {
 
     this.authRepository.update(user.id, {})
     const tokens = await this.helpers.issueTokensPair(user)
-    return { user, ...tokens }
+    const { password: userPassword, ...result } = user
+    return { result, ...tokens }
   }
 
   async refresh(tokenDto: RefreshTokenDto) {
     const user = await this.helpers.verifyRefreshToken(tokenDto)
     const tokens = await this.helpers.issueTokensPair(user)
-    return { user, ...tokens }
+    const { password: userPassword, ...result } = user
+    return { result, ...tokens }
   }
 }

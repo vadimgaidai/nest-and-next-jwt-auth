@@ -71,7 +71,7 @@ export class AuthenticationHelpers {
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
-      expires_in: 60 * 1000, // Number(process.env.JWT_EXPIRES) * 1000
+      expires_in: Number(process.env.JWT_EXPIRES) * 1000,
     }
   }
 
@@ -87,13 +87,12 @@ export class AuthenticationHelpers {
       const decoded: DecodeToken = await this.jwtService.verifyAsync(refreshToken, {
         secret: process.env.JWT_REFRESH_KEY,
       })
-      if (!decoded) {
-        throw new UnauthorizedException()
-      }
+
       const user: UserEntity = await this.validateUser(decoded)
       if (!user) {
         throw new UnauthorizedException()
       }
+
       const dbToken: RefreshTokenEntity = await this.refreshTokenRepository.findOne({
         where: {
           user_id: user.id,
@@ -103,6 +102,7 @@ export class AuthenticationHelpers {
       if (!isHashValid) {
         throw new UnauthorizedException()
       }
+
       return user
     } catch (e) {
       throw new UnauthorizedException()
