@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus, UnauthorizedException } from '@nestjs/common'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
@@ -7,7 +7,14 @@ import * as bcrypt from 'bcryptjs'
 import { UserEntity } from '@/users/entities/user.entity'
 import { RefreshTokenEntity } from './entities/refresh-token.entity'
 
-import { RefreshTokenDto } from './dto/refresh-roken.dto'
+import { RefreshTokenDto } from './dto/refresh-token.dto'
+
+interface DecodeToken {
+  id: string
+  email: string
+  iat: number
+  exp: number
+}
 @Injectable()
 export class AuthenticationHelpers {
   constructor(
@@ -17,10 +24,6 @@ export class AuthenticationHelpers {
     private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
     private readonly jwtService: JwtService
   ) {}
-
-  public async decode(token: string): Promise<unknown> {
-    return this.jwtService.decode(token, null)
-  }
 
   public async validateUser(decoded: any): Promise<UserEntity> {
     return this.authRepository.findOne(decoded.id)
@@ -51,11 +54,13 @@ export class AuthenticationHelpers {
     const data = { id, email }
 
     const accessToken = await this.jwtService.signAsync(data, {
-      expiresIn: '60s', // Number(process.env.JWT_EXPIRES)
+      secret: process.env.JWT_KEY,
+      expiresIn: Number(process.env.JWT_EXPIRES),
     })
 
     const refreshToken = await this.jwtService.signAsync(data, {
-      expiresIn: '120s', // Number(process.env.JWT_REFRESH_EXPIRES)
+      secret: process.env.JWT_REFRESH_KEY,
+      expiresIn: Number(process.env.JWT_REFRESH_EXPIRES),
     })
 
     await this.saveRefreshToken({
@@ -70,26 +75,37 @@ export class AuthenticationHelpers {
     }
   }
 
-  public async encode(data: string): Promise<string> {
-    const salt: string = await bcrypt.genSaltSync(10)
+  public async encode(data: string, saltValue = 10): Promise<string> {
+    const salt: string = await bcrypt.genSaltSync(saltValue)
     return bcrypt.hashSync(data, salt)
   }
 
-  public async validate({
+  public async verifyRefreshToken({
     refresh_token: refreshToken,
   }: RefreshTokenDto): Promise<UserEntity | never> {
-    const decoded: unknown = await this.jwtService.verifyAsync(refreshToken)
-
-    if (!decoded) {
-      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN)
-    }
-
-    const user: UserEntity = await this.validateUser(decoded)
-
-    if (!user) {
+    try {
+      const decoded: DecodeToken = await this.jwtService.verifyAsync(refreshToken, {
+        secret: process.env.JWT_REFRESH_KEY,
+      })
+      if (!decoded) {
+        throw new UnauthorizedException()
+      }
+      const user: UserEntity = await this.validateUser(decoded)
+      if (!user) {
+        throw new UnauthorizedException()
+      }
+      const dbToken: RefreshTokenEntity = await this.refreshTokenRepository.findOne({
+        where: {
+          user_id: user.id,
+        },
+      })
+      const isHashValid: boolean = await this.isHashValid(refreshToken, dbToken.refresh_token)
+      if (!isHashValid) {
+        throw new UnauthorizedException()
+      }
+      return user
+    } catch (e) {
       throw new UnauthorizedException()
     }
-
-    return user
   }
 }

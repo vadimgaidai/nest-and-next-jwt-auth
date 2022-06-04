@@ -10,7 +10,7 @@ import {
 import { AuthenticationService } from './authentication.service'
 import { SignInDto } from './dto/sign-in.dto'
 import { SignUpDto } from './dto/sign-up.dto'
-import { RefreshTokenDto } from './dto/refresh-roken.dto'
+import { RefreshTokenDto } from './dto/refresh-token.dto'
 
 @Controller('auth')
 export class AuthenticationController {

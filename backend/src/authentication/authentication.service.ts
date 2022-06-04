@@ -8,7 +8,7 @@ import { SignUpDto } from './dto/sign-up.dto'
 import { UserEntity } from '@/users/entities/user.entity'
 import { RefreshTokenEntity } from './entities/refresh-token.entity'
 import { AuthenticationHelpers } from './authentication.helpers'
-import { RefreshTokenDto } from './dto/refresh-roken.dto'
+import { RefreshTokenDto } from './dto/refresh-token.dto'
 
 @Injectable()
 export class AuthenticationService {
@@ -57,26 +57,7 @@ export class AuthenticationService {
   }
 
   async refresh(tokenDto: RefreshTokenDto) {
-    const user = await this.helpers.validate(tokenDto)
-    if (!user) {
-      throw new HttpException('Conflict', HttpStatus.CONFLICT)
-    }
-    const refreshToken: RefreshTokenEntity = await this.refreshTokenRepository.findOne({
-      where: {
-        user_id: user.id,
-      },
-    })
-
-    const isHashValid: boolean = await this.helpers.isHashValid(
-      tokenDto.refresh_token,
-      refreshToken.refresh_token
-    )
-
-    console.log(tokenDto.refresh_token, refreshToken.refresh_token, isHashValid)
-
-    if (!isHashValid) {
-      throw new HttpException('Conflict', HttpStatus.UNAUTHORIZED)
-    }
+    const user = await this.helpers.verifyRefreshToken(tokenDto)
     const tokens = await this.helpers.issueTokensPair(user)
     return { user, ...tokens }
   }

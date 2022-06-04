@@ -10,6 +10,8 @@ import { UserEntity } from '@/users/entities/user.entity'
 import { RefreshTokenEntity } from './entities/refresh-token.entity'
 
 import { JwtStrategy } from './strategies/authentication.strategy'
+import { JwtRefreshStrategy } from './strategies/refresh-token.strategy'
+
 import { AuthenticationHelpers } from './authentication.helpers'
 
 @Module({
@@ -24,6 +26,7 @@ import { AuthenticationHelpers } from './authentication.helpers'
     TypeOrmModule.forFeature([UserEntity, RefreshTokenEntity]),
   ],
   controllers: [AuthenticationController],
-  providers: [AuthenticationService, AuthenticationHelpers, JwtStrategy],
+  providers: [AuthenticationService, AuthenticationHelpers, JwtStrategy, JwtRefreshStrategy],
+  exports: [JwtStrategy, JwtRefreshStrategy, PassportModule],
 })
 export class AuthenticationModule {}
