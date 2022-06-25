@@ -1,6 +1,7 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
+import { Text } from '@chakra-ui/react'
 import styles from '../styles/Home.module.css'
 
 const Home: NextPage = () => (
@@ -12,9 +13,13 @@ const Home: NextPage = () => (
     </Head>
 
     <main className={styles.main}>
-      <h1 className={styles.title}>
+      <Text
+        bgGradient="linear(to-l, #7928CA, #FF0080)"
+        bgClip="text"
+        fontSize="6xl"
+        fontWeight="extrabold">
         Welcome to <a href="https://nextjs.org">Next.js!</a>
-      </h1>
+      </Text>
 
       <p className={styles.description}>
         Get started by editing <code className={styles.code}>pages/index.tsx</code>
