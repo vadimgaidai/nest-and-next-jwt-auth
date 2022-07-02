@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  compiler: {
+    styledComponents: true,
+  },
+  experimental: {
+    scrollRestoration: true,
+    outputStandalone: true,
+  },
   reactStrictMode: true,
   async rewrites() {
     return [
