@@ -52,7 +52,7 @@ const Header: FC = () => {
           {links?.map(({ route, value, path }) => (
             <ListItem key={route}>
               <Link href={route}>
-                <LinkText color={pathname === path ? 'active' : 'text'}>{value}</LinkText>
+                <LinkText color={pathname === path ? 'primary' : 'input'}>{value}</LinkText>
               </Link>
             </ListItem>
           ))}
