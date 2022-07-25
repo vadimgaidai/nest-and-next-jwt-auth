@@ -1,5 +1,5 @@
 import { axios } from 'plugins/axios'
-import { SignInTypes, SignUpTypes, RefreshTokensTypes, TokensTypes } from 'state/auth/types'
+import { SignInTypes, SignUpTypes, TokensTypes } from 'state/auth/types'
 
 export const AuthApi = {
   async signIn(payload: SignInTypes): Promise<TokensTypes> {
@@ -10,8 +10,12 @@ export const AuthApi = {
     const response: TokensTypes = await axios.post('auth/sign-up', payload)
     return response
   },
-  async refreshTokens(payload: RefreshTokensTypes): Promise<TokensTypes> {
-    const response: TokensTypes = await axios.post('auth/sign-up', payload)
+  async refreshTokens(refreshToken: string): Promise<TokensTypes> {
+    const response: TokensTypes = await axios.post('auth/refresh', {
+      headers: {
+        Authorization: `Bearer ${refreshToken}`,
+      },
+    })
     return response
   },
 }
