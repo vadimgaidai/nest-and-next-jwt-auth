@@ -4,13 +4,24 @@ import { Repository } from 'typeorm'
 
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserEntity } from '@/users/entities/user.entity'
+import { AuthenticationHelpers } from '@/authentication/authentication.helpers'
+import { RefreshTokenDto } from '@/authentication/dto/refresh-token.dto'
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
-    private usersRepository: Repository<UserEntity>
+    private usersRepository: Repository<UserEntity>,
+    private readonly helpers: AuthenticationHelpers
   ) {}
+
+  async me({ token }: RefreshTokenDto) {
+    const user = await this.helpers.verifyToken({ token, secret: process.env.JWT_KEY })
+    if (!user) {
+      throw new NotFoundException('User is not found')
+    }
+    return user
+  }
   async findAll() {
     const users = await this.usersRepository.find()
     return users
