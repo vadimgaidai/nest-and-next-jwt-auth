@@ -5,9 +5,11 @@ import {
   Patch,
   Param,
   Delete,
+  Headers,
   UseGuards,
   UseInterceptors,
   ClassSerializerInterceptor,
+  UnauthorizedException,
 } from '@nestjs/common'
 
 import { UsersService } from './users.service'
@@ -17,6 +19,20 @@ import { JwtGuard } from '@/authentication/guards/jwt.guard'
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get()
+  @UseGuards(JwtGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  me(@Headers('Authorization') auth: string) {
+    let token = null
+    if (typeof auth != 'undefined') {
+      token = auth.replace('Bearer ', '')
+    }
+    if (!token) {
+      throw new UnauthorizedException('No Token provided!')
+    }
+    return this.usersService.me({ token })
+  }
 
   @Get()
   @UseGuards(JwtGuard)

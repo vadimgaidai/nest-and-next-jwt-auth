@@ -2,15 +2,16 @@ import {
   Controller,
   Post,
   Body,
+  Headers,
   UseInterceptors,
   ClassSerializerInterceptor,
   UsePipes,
   ValidationPipe,
+  UnauthorizedException,
 } from '@nestjs/common'
 import { AuthenticationService } from './authentication.service'
 import { SignInDto } from './dto/sign-in.dto'
 import { SignUpDto } from './dto/sign-up.dto'
-import { RefreshTokenDto } from './dto/refresh-token.dto'
 
 @Controller('auth')
 export class AuthenticationController {
@@ -31,7 +32,14 @@ export class AuthenticationController {
 
   @UsePipes(new ValidationPipe())
   @Post('refresh')
-  private refresh(@Body() tokenDto: RefreshTokenDto) {
-    return this.authenticationService.refresh(tokenDto)
+  private refresh(@Headers('Authorization') auth: string) {
+    let token = null
+    if (typeof auth != 'undefined') {
+      token = auth.replace('Bearer ', '')
+    }
+    if (!token) {
+      throw new UnauthorizedException('No Token provided!')
+    }
+    return this.authenticationService.refresh({ token })
   }
 }

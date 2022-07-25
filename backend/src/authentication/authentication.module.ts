@@ -7,7 +7,6 @@ import { AuthenticationService } from './authentication.service'
 import { AuthenticationController } from './authentication.controller'
 
 import { UserEntity } from '@/users/entities/user.entity'
-import { RefreshTokenEntity } from './entities/refresh-token.entity'
 
 import { JwtStrategy } from './strategies/authentication.strategy'
 import { JwtRefreshStrategy } from './strategies/refresh-token.strategy'
@@ -23,10 +22,10 @@ import { AuthenticationHelpers } from './authentication.helpers'
         signOptions: { expiresIn: process.env.JWT_EXPIRES },
       }),
     }),
-    TypeOrmModule.forFeature([UserEntity, RefreshTokenEntity]),
+    TypeOrmModule.forFeature([UserEntity]),
   ],
   controllers: [AuthenticationController],
   providers: [AuthenticationService, AuthenticationHelpers, JwtStrategy, JwtRefreshStrategy],
-  exports: [JwtStrategy, JwtRefreshStrategy, PassportModule],
+  exports: [JwtStrategy, JwtRefreshStrategy, PassportModule, AuthenticationHelpers],
 })
 export class AuthenticationModule {}

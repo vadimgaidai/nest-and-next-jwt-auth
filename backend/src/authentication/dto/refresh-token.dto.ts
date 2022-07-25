@@ -1,10 +1,10 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator'
+import { IsOptional, IsString } from 'class-validator'
 
 export class RefreshTokenDto {
-  @IsNumber()
-  @IsOptional()
-  user_id: number
+  @IsString()
+  token: string
 
   @IsString()
-  refresh_token: string
+  @IsOptional()
+  secret?: string
 }

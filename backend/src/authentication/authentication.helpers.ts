@@ -5,7 +5,6 @@ import { Repository } from 'typeorm'
 import * as bcrypt from 'bcryptjs'
 
 import { UserEntity } from '@/users/entities/user.entity'
-import { RefreshTokenEntity } from './entities/refresh-token.entity'
 
 import { RefreshTokenDto } from './dto/refresh-token.dto'
 
@@ -20,8 +19,6 @@ export class AuthenticationHelpers {
   constructor(
     @InjectRepository(UserEntity)
     private readonly authRepository: Repository<UserEntity>,
-    @InjectRepository(RefreshTokenEntity)
-    private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
     private readonly jwtService: JwtService
   ) {}
 
@@ -31,23 +28,6 @@ export class AuthenticationHelpers {
 
   public async isHashValid(data: string, hash: string): Promise<boolean> {
     return bcrypt.compareSync(data, hash)
-  }
-
-  // Saved bcrypt refresh_token in DB with user id
-  public async saveRefreshToken({ user_id, refresh_token: refreshToken }: RefreshTokenDto) {
-    const payload: RefreshTokenEntity = await this.refreshTokenRepository.findOne({
-      where: {
-        user_id,
-      },
-    })
-    const token = new RefreshTokenEntity()
-    token.user_id = user_id
-    token.refresh_token = await this.encode(refreshToken)
-    if (!payload) {
-      await this.refreshTokenRepository.save(token)
-      return
-    }
-    await this.refreshTokenRepository.update(payload.id, token)
   }
 
   public async issueTokensPair({ id, email }: UserEntity) {
@@ -63,11 +43,6 @@ export class AuthenticationHelpers {
       expiresIn: Number(process.env.JWT_REFRESH_EXPIRES),
     })
 
-    await this.saveRefreshToken({
-      user_id: id,
-      refresh_token: refreshToken,
-    })
-
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
@@ -80,29 +55,18 @@ export class AuthenticationHelpers {
     return bcrypt.hashSync(data, salt)
   }
 
-  public async verifyRefreshToken({
-    refresh_token: refreshToken,
-  }: RefreshTokenDto): Promise<UserEntity | never> {
+  public async verifyToken({ token, secret }: RefreshTokenDto): Promise<UserEntity | never> {
     try {
-      const decoded: DecodeToken = await this.jwtService.verifyAsync(refreshToken, {
-        secret: process.env.JWT_REFRESH_KEY,
+      const decoded: DecodeToken = await this.jwtService.verifyAsync(token, {
+        secret,
       })
-
+      if (!decoded) {
+        throw new UnauthorizedException()
+      }
       const user: UserEntity = await this.validateUser(decoded)
       if (!user) {
         throw new UnauthorizedException()
       }
-
-      const dbToken: RefreshTokenEntity = await this.refreshTokenRepository.findOne({
-        where: {
-          user_id: user.id,
-        },
-      })
-      const isHashValid: boolean = await this.isHashValid(refreshToken, dbToken.refresh_token)
-      if (!isHashValid) {
-        throw new UnauthorizedException()
-      }
-
       return user
     } catch (e) {
       throw new UnauthorizedException()
