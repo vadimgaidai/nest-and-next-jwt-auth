@@ -11,12 +11,13 @@ import { Header } from 'components/Header'
 import Footer from 'components/Footer'
 
 import { persistor, useStore } from 'state/store'
+import { mediaQueries } from 'styles/breakpoints'
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   const store = useStore(pageProps.initialReduxState)
   return (
     <Provider store={store}>
-      <ThemeProvider theme={{ colors }}>
+      <ThemeProvider theme={{ colors, mediaQueries }}>
         <ChakraProvider theme={theme}>
           <Head>
             <title>Create Next App</title>
