@@ -8,10 +8,16 @@ const initialState: AuthStateTypes = {
   expiresIn: null,
 }
 
-const { reducer } = createSlice({
+const { reducer, actions } = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    logout(state) {
+      state.accessToken = null
+      state.refreshToken = null
+      state.expiresIn = null
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(signIn.fulfilled, (state, { payload }) => {
       state.accessToken = payload.access_token
@@ -31,4 +37,5 @@ const { reducer } = createSlice({
   },
 })
 
+export const { logout } = actions
 export default reducer

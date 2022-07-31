@@ -1,4 +1,5 @@
 import type { AppProps } from 'next/app'
+
 import Head from 'next/head'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
@@ -6,7 +7,7 @@ import { ChakraProvider, Grid } from '@chakra-ui/react'
 import { ThemeProvider } from 'styled-components'
 import theme, { colors } from 'styles/theme'
 
-import Header from 'components/Header'
+import { Header } from 'components/Header'
 import Footer from 'components/Footer'
 
 import { persistor, useStore } from 'state/store'
