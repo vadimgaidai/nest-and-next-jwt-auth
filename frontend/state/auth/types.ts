@@ -15,8 +15,4 @@ export interface TokensTypes {
   expires_in: number
 }
 
-export interface AuthStateTypes {
-  accessToken: string | null
-  refreshToken: string | null
-  expiresIn: number | null
-}
+export interface AuthStateTypes {}

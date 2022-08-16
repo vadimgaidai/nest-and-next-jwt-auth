@@ -1,4 +1,4 @@
-import { axios } from 'plugins/axios'
+import axios from 'plugins/axios'
 import { SignInTypes, SignUpTypes, TokensTypes } from 'state/auth/types'
 
 export const AuthApi = {

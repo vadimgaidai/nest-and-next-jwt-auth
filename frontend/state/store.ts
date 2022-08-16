@@ -15,7 +15,7 @@ import storage from 'redux-persist/lib/storage'
 
 import authReducer from './auth/slice'
 
-const PERSISTED_KEYS: string[] = ['auth']
+const PERSISTED_KEYS: string[] = []
 
 const persistConfig = {
   key: 'primary',
