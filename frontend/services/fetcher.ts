@@ -11,7 +11,7 @@ const authErrorStatusCode = 401
 
 const refreshToken = async (cookies: CookieTypes): Promise<TokensTypes | null> => {
   try {
-    const response = await AuthApi.refreshTokens(cookies?.refresh_token)
+    const response = await AuthApi().refreshTokens(cookies?.refresh_token)
 
     if (!response?.access_token) {
       resetCookieData()
