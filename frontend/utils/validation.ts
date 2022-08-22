@@ -11,6 +11,6 @@ export const SignInValidation = yup.object().shape({
 export const SignUpValidation = yup
   .object()
   .shape({
-    name: yup.string().required('Name is required'),
+    name: yup.string().min(2, 'Name must be at least 2 characters').required('Name is required'),
   })
   .concat(SignInValidation)

@@ -1,7 +1,7 @@
 import axios from 'plugins/axios'
 import { SignInTypes, SignUpTypes, TokensTypes } from 'state/auth/types'
 
-export const AuthApi = {
+export const AuthApi = () => ({
   async signIn(payload: SignInTypes): Promise<TokensTypes> {
     const response: TokensTypes = await axios.post('auth/sign-in', payload)
     return response
@@ -18,4 +18,4 @@ export const AuthApi = {
     })
     return response
   },
-}
+})

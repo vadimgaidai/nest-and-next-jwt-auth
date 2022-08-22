@@ -2,13 +2,15 @@ import { FC, useMemo } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
+import { Button } from '@chakra-ui/react'
 import { FormTypes } from './types'
-import { FormStyle, SubmitButton } from './styles'
+import { FormStyle } from './styles'
 
 const Form: FC<FormTypes> = ({
   validation,
   mode = 'onChange',
   text,
+  loading,
   children,
   disabled,
   onSubmit,
@@ -29,9 +31,9 @@ const Form: FC<FormTypes> = ({
     <FormProvider {...methods}>
       <FormStyle onSubmit={methods.handleSubmit(onSubmit)}>
         {children}
-        <SubmitButton disabled={!isValid} type="submit">
-          {text}
-        </SubmitButton>
+        <Button type="submit" color="secondary" size="lg" disabled={loading || !isValid}>
+          {loading ? 'Loading...' : text}
+        </Button>
       </FormStyle>
     </FormProvider>
   )

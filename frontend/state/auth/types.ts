@@ -15,4 +15,7 @@ export interface TokensTypes {
   expires_in: number
 }
 
-export interface AuthStateTypes {}
+export interface AuthStateTypes {
+  isAuth: boolean
+  loading: boolean
+}
