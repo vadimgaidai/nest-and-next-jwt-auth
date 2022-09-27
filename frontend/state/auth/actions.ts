@@ -4,7 +4,7 @@ import { SignInTypes, SignUpTypes } from './types'
 
 export const signIn = createAsyncThunk('auth/signIn', async (data: SignInTypes) => {
   try {
-    const payload = await AuthApi().signIn(data)
+    const payload = await AuthApi.signIn(data)
     return payload
   } catch {
     throw Error('Sign in error')
@@ -13,9 +13,18 @@ export const signIn = createAsyncThunk('auth/signIn', async (data: SignInTypes) 
 
 export const signUp = createAsyncThunk('auth/signUp', async (data: SignUpTypes) => {
   try {
-    const payload = await AuthApi().signUp(data)
+    const payload = await AuthApi.signUp(data)
     return payload
   } catch {
     throw Error('Sign up error')
+  }
+})
+
+export const getRefreshToken = createAsyncThunk('auth/getRefreshToken', async (token: string) => {
+  try {
+    const payload = await AuthApi.refreshTokens(token)
+    return payload
+  } catch {
+    throw Error('Refresh Token error')
   }
 })

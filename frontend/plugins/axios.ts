@@ -1,26 +1,62 @@
 /* eslint-disable import/named */
 /* eslint-disable import/no-self-import */
-import axiosLib, { AxiosError, AxiosInstance, AxiosResponse } from 'axios'
+import axiosLib, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios'
+import { getRefreshToken } from 'state/auth/actions'
 
-const instance: AxiosInstance = axiosLib.create({
+import store from 'state/store'
+
+const instance = axiosLib.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/`,
 })
 
-export const instanceJWT: AxiosInstance = axiosLib.create({
+const instanceJWT = axiosLib.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/`,
 })
+
+const authErrorStatusCode = 401
 
 const responseFulfilled = (response: AxiosResponse) => response?.data
 
-const responseRejected = (error: AxiosError) => {
-  if (!error?.response) {
+function responseRejected(error: AxiosError) {
+  if (!error || !error.response) {
     return Promise.reject()
+  }
+  return Promise.reject(error.response)
+}
+
+async function requestFulfilledJWT(config: AxiosRequestConfig) {
+  const expiredIn = store?.getState().auth.expiresIn
+  let accessToken = store?.getState().auth.accessToken
+  const refreshToken = store?.getState().auth.refreshToken
+  const isExpired = !expiredIn || expiredIn < Date.now() / 1000
+
+  if (isExpired && refreshToken) {
+    await store?.dispatch(getRefreshToken(refreshToken))
+    accessToken = store?.getState().auth.accessToken
+  }
+
+  if (accessToken && config?.headers) {
+    config.headers.Authorization = `Bearer ${accessToken}`
+  }
+
+  return config
+}
+
+async function responseRejectedJWT(error: AxiosError) {
+  if (!error || !error.response) {
+    return Promise.reject()
+  }
+
+  if (error.response.status === authErrorStatusCode) {
+    return instanceJWT(error.config)
   }
   return Promise.reject(error.response)
 }
 
 instance.interceptors.response.use(responseFulfilled, responseRejected)
 
-const axios: AxiosInstance = instance
+instanceJWT.interceptors.request.use(requestFulfilledJWT)
+instanceJWT.interceptors.response.use(responseFulfilled, responseRejectedJWT)
 
-export default axios
+export const axios: AxiosInstance = instance
+export const axiosJWT: AxiosInstance = instanceJWT

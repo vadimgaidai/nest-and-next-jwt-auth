@@ -46,7 +46,7 @@ export class AuthenticationHelpers {
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
-      expires_in: Number(process.env.JWT_EXPIRES) * 1000,
+      expires_in: Date.now() / 1000 + Number(process.env.JWT_EXPIRES),
     }
   }
 

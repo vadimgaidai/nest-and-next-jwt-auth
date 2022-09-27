@@ -20,7 +20,7 @@ const SignUp: NextPage = () => {
 
   return (
     <AuthWrapper title="Sign Up" type="signup">
-      <Form text="Sign In" validation={SignUpValidation} loading={isLoading} onSubmit={onSubmit}>
+      <Form text="Sign Un" validation={SignUpValidation} loading={isLoading} onSubmit={onSubmit}>
         <FormField name="name" type="text" label="Name" placeholder="Enter your name" />
         <FormField name="email" type="email" label="Email" placeholder="Enter your email" />
         <FormField

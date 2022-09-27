@@ -12,10 +12,12 @@ import {
   REHYDRATE,
 } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
+import { createWrapper } from 'next-redux-wrapper'
 
 import authReducer from './auth/slice'
+import usersReducer from './users/slice'
 
-const PERSISTED_KEYS: string[] = []
+const PERSISTED_KEYS: string[] = ['auth']
 
 const persistConfig = {
   key: 'primary',
@@ -24,9 +26,12 @@ const persistConfig = {
   version: 0,
 }
 
-const persistedReducer = persistReducer(persistConfig, combineReducers({ auth: authReducer }))
+const persistedReducer = persistReducer(
+  persistConfig,
+  combineReducers({ auth: authReducer, users: usersReducer })
+)
 
-const makeStore = (preloadedState = undefined) =>
+const makeStore = (preloadedState?: any) =>
   configureStore({
     reducer: persistedReducer,
     middleware: (getDefaultMiddleware) =>
@@ -81,5 +86,9 @@ export const persistor = persistStore(store)
 export function useStore(initialState: RootState) {
   return useMemo(() => initializeStore(initialState), [initialState])
 }
+
+export const wrapper = createWrapper<RootStore>(initializeStore, {
+  debug: process.env.NODE_ENV !== 'production',
+})
 
 export default store

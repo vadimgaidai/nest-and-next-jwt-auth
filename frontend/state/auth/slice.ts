@@ -1,11 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { parseCookies } from 'nookies'
-import { setCookieData, resetCookieData } from 'services/cookie'
-import { signIn, signUp } from './actions'
+import { getRefreshToken, signIn, signUp } from './actions'
 import { AuthStateTypes } from './types'
 
 const initialState: AuthStateTypes = {
-  isAuth: !!parseCookies(),
+  accessToken: null,
+  refreshToken: null,
+  expiresIn: null,
   loading: false,
 }
 
@@ -14,8 +14,9 @@ const { reducer, actions } = createSlice({
   initialState,
   reducers: {
     logout(state) {
-      state.isAuth = false
-      resetCookieData()
+      state.accessToken = null
+      state.refreshToken = null
+      state.expiresIn = null
     },
   },
   extraReducers: (builder) => {
@@ -23,17 +24,37 @@ const { reducer, actions } = createSlice({
       state.loading = true
     })
     builder.addCase(signIn.fulfilled, (state, { payload }) => {
-      setCookieData(payload)
+      state.accessToken = payload.access_token
+      state.refreshToken = payload.refresh_token
+      state.expiresIn = payload.expires_in
       state.loading = false
-      state.isAuth = true
+    })
+    builder.addCase(signIn.rejected, (state) => {
+      state.loading = false
     })
     builder.addCase(signUp.pending, (state) => {
       state.loading = true
     })
     builder.addCase(signUp.fulfilled, (state, { payload }) => {
-      setCookieData(payload)
+      state.accessToken = payload.access_token
+      state.refreshToken = payload.refresh_token
+      state.expiresIn = payload.expires_in
       state.loading = false
-      state.isAuth = true
+    })
+    builder.addCase(signUp.rejected, (state) => {
+      state.loading = false
+    })
+    builder.addCase(getRefreshToken.pending, (state) => {
+      state.loading = true
+    })
+    builder.addCase(getRefreshToken.fulfilled, (state, { payload }) => {
+      state.accessToken = payload.access_token
+      state.refreshToken = payload.refresh_token
+      state.expiresIn = payload.expires_in
+      state.loading = false
+    })
+    builder.addCase(getRefreshToken.rejected, (state) => {
+      state.loading = false
     })
   },
 })

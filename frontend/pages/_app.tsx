@@ -1,20 +1,31 @@
-import type { AppProps } from 'next/app'
-
+import { useEffect } from 'react'
 import Head from 'next/head'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import { ChakraProvider, Grid } from '@chakra-ui/react'
 import { ThemeProvider } from 'styled-components'
+
+import type { AppProps } from 'next/app'
 import theme, { colors } from 'styles/theme'
 
 import { Header } from 'components/Header'
 import Footer from 'components/Footer'
 
-import { persistor, useStore } from 'state/store'
+import { persistor, useStore, wrapper } from 'state/store'
 import { mediaQueries } from 'styles/breakpoints'
+import { getMeAction } from 'state/users/actions'
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   const store = useStore(pageProps.initialReduxState)
+
+  useEffect(() => {
+    if (store.getState().auth.accessToken && !store.getState().users.user) {
+      ;(async () => {
+        await store.dispatch(getMeAction())
+      })()
+    }
+  }, [])
+
   return (
     <Provider store={store}>
       <ThemeProvider theme={{ colors, mediaQueries }}>
@@ -37,4 +48,8 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
   )
 }
 
-export default MyApp
+MyApp.getInitialProps = wrapper.getInitialAppProps((store) => async ({ ctx, Component }) => ({
+  pageProps: Component.getInitialProps ? await Component.getInitialProps({ ...ctx, store }) : {},
+}))
+
+export default wrapper.withRedux(MyApp)
