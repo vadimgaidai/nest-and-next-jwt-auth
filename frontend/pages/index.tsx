@@ -9,6 +9,7 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react'
+import { format } from 'date-fns'
 import type { NextPage } from 'next'
 
 import { useAppSelector } from 'state/hooks'
@@ -39,7 +40,7 @@ const Home: NextPage = () => {
     },
     {
       name: 'updatedAt',
-      value: 'Updated date',
+      value: 'Last updated date',
     },
   ]
   return (
@@ -60,10 +61,10 @@ const Home: NextPage = () => {
             {users?.map(({ id, name, email, createdAt, updatedAt }) => (
               <Tr key={id}>
                 <Td isNumeric>{id}</Td>
-                <Td>{name})</Td>
+                <Td>{name}</Td>
                 <Td>{email}</Td>
-                <Td>{String(createdAt)}</Td>
-                <Td>{String(updatedAt)}</Td>
+                <Td>{format(new Date(createdAt), 'dd/MM/yyyy')}</Td>
+                <Td>{format(new Date(updatedAt), 'dd/MM/yyyy')}</Td>
               </Tr>
             ))}
           </Tbody>
