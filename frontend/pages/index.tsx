@@ -1,28 +1,75 @@
-import { Text } from '@chakra-ui/react'
-
+import {
+  Heading,
+  Table,
+  TableCaption,
+  TableContainer,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from '@chakra-ui/react'
 import type { NextPage } from 'next'
 
 import { useAppSelector } from 'state/hooks'
-import { selectUser, selectUsers } from 'state/users/selectors'
+import { selectUsers } from 'state/users/selectors'
 import { wrapper } from 'state/store'
 import { getUsers } from 'state/users/actions'
+import { Container } from 'components/Container'
 
 const Home: NextPage = () => {
-  const user = useAppSelector(selectUser)
   const users = useAppSelector(selectUsers)
+
+  const tableHeads = [
+    {
+      name: 'id',
+      value: '#id',
+    },
+    {
+      name: 'name',
+      value: 'Name',
+    },
+    {
+      name: 'email',
+      value: 'Email',
+    },
+    {
+      name: 'createdAt',
+      value: 'Create date',
+    },
+    {
+      name: 'updatedAt',
+      value: 'Updated date',
+    },
+  ]
   return (
-    <main>
-      <Text
-        bgGradient="linear(to-l, #7928CA, #FF0080)"
-        bgClip="text"
-        fontSize="6xl"
-        fontWeight="extrabold">
-        User: {user?.name} {user?.email}
-      </Text>
-      {users?.map(({ id, name }) => (
-        <div key={id}>{name}</div>
-      ))}
-    </main>
+    <Container as="main">
+      <TableContainer>
+        <Table>
+          <TableCaption>
+            <Heading>This is users list</Heading>
+          </TableCaption>
+          <Thead>
+            <Tr>
+              {tableHeads.map(({ name, value }) => (
+                <Th key={name}>{value}</Th>
+              ))}
+            </Tr>
+          </Thead>
+          <Tbody>
+            {users?.map(({ id, name, email, createdAt, updatedAt }) => (
+              <Tr key={id}>
+                <Td isNumeric>{id}</Td>
+                <Td>{name})</Td>
+                <Td>{email}</Td>
+                <Td>{String(createdAt)}</Td>
+                <Td>{String(updatedAt)}</Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      </TableContainer>
+    </Container>
   )
 }
 
