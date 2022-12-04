@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 import { Action, combineReducers, configureStore, ThunkAction } from '@reduxjs/toolkit'
-import { useMemo } from 'react'
 import {
   FLUSH,
   PAUSE,
@@ -17,7 +16,7 @@ import { createWrapper } from 'next-redux-wrapper'
 import authReducer from './auth/slice'
 import usersReducer from './users/slice'
 
-const PERSISTED_KEYS: string[] = ['auth']
+const PERSISTED_KEYS: string[] = []
 
 const persistConfig = {
   key: 'primary',
@@ -34,6 +33,7 @@ const persistedReducer = persistReducer(
 const makeStore = (preloadedState?: any) =>
   configureStore({
     reducer: persistedReducer,
+    preloadedState,
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         immutableCheck: true,
@@ -43,7 +43,6 @@ const makeStore = (preloadedState?: any) =>
         thunk: true,
       }),
     devTools: process.env.NODE_ENV !== 'production',
-    preloadedState,
   })
 
 // eslint-disable-next-line import/no-mutable-exports
@@ -82,10 +81,6 @@ export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unk
 export type AppDispatch = typeof store.dispatch
 
 export const persistor = persistStore(store)
-
-export function useStore(initialState: RootState) {
-  return useMemo(() => initializeStore(initialState), [initialState])
-}
 
 export const wrapper = createWrapper<RootStore>(initializeStore, {
   debug: process.env.NODE_ENV !== 'production',

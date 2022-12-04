@@ -25,14 +25,14 @@ function responseRejected(error: AxiosError) {
 }
 
 async function requestFulfilledJWT(config: AxiosRequestConfig) {
-  const expiredIn = store?.getState().auth.expiresIn
-  let accessToken = store?.getState().auth.accessToken
-  const refreshToken = store?.getState().auth.refreshToken
-  const isExpired = !expiredIn || expiredIn < Date.now() / 1000
+  let accessToken = localStorage.getItem('accessToken')
+  const refreshToken = localStorage.getItem('refreshToken')
+  const expiredIn = localStorage.getItem('expiresIn')
+  const isExpired = !expiredIn || +expiredIn < Date.now() / 1000
 
   if (isExpired && refreshToken) {
     await store?.dispatch(getRefreshToken(refreshToken))
-    accessToken = store?.getState().auth.accessToken
+    accessToken = localStorage.getItem('accessToken')
   }
 
   if (accessToken && config?.headers) {

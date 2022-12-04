@@ -8,14 +8,14 @@ import type { AppProps } from 'next/app'
 import theme, { colors } from 'styles/theme'
 import { mediaQueries } from 'styles/breakpoints'
 
-import { persistor, useStore, wrapper } from 'state/store'
+import { persistor, wrapper } from 'state/store'
 
 import { Header } from 'components/Header'
 import Footer from 'components/Footer'
 import AuthGuard from 'components/Auth/Guard'
 
-const MyApp = ({ Component, pageProps }: AppProps) => {
-  const store = useStore(pageProps.initialReduxState)
+const MyApp = ({ Component, ...rest }: AppProps) => {
+  const { store, props } = wrapper.useWrappedStore(rest)
 
   return (
     <Provider store={store}>
@@ -30,7 +30,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
             <Header />
             <PersistGate loading={null} persistor={persistor}>
               <AuthGuard>
-                <Component {...pageProps} />
+                <Component {...props.pageProps} />
               </AuthGuard>
             </PersistGate>
             <Footer />
@@ -41,8 +41,4 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
   )
 }
 
-MyApp.getInitialProps = wrapper.getInitialAppProps((store) => async ({ ctx, Component }) => ({
-  pageProps: Component.getInitialProps ? await Component.getInitialProps({ ...ctx, store }) : {},
-}))
-
-export default wrapper.withRedux(MyApp)
+export default MyApp

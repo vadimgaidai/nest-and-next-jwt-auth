@@ -1,14 +1,4 @@
-import {
-  Heading,
-  Table,
-  TableCaption,
-  TableContainer,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from '@chakra-ui/react'
+import { Table, TableContainer, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
 import { format } from 'date-fns'
 
 import type { NextPage } from 'next'
@@ -49,9 +39,6 @@ const Home: NextPage = () => {
     <Container as="main">
       <TableContainer>
         <Table variant="simple">
-          <TableCaption>
-            <Heading>This is users list</Heading>
-          </TableCaption>
           <Thead>
             <Tr>
               {tableHeads.map(({ name, value }) => (
