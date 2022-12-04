@@ -1,7 +1,7 @@
 import { Text, List as ChakraList } from '@chakra-ui/react'
 import styled from 'styled-components'
 
-export const Content = styled.header`
+export const HeaderStyle = styled.header`
   padding: 15px 0;
 `
 export const List = styled(ChakraList)`

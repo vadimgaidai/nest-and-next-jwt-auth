@@ -5,9 +5,7 @@ const nextConfig = {
   },
   experimental: {
     scrollRestoration: true,
-    outputStandalone: true,
   },
-  reactStrictMode: true,
   async rewrites() {
     return [
       {
@@ -17,6 +15,10 @@ const nextConfig = {
       {
         source: '/sign-up',
         destination: '/SignUp',
+      },
+      {
+        source: '/dashboard',
+        destination: '/Dashboard',
       },
     ]
   },

@@ -6,6 +6,7 @@ export const colors: Colors = {
   text: '#FFFFFF',
   primary: '#33394F',
   secondary: '#FC728B',
+  error: '#FC8181',
 }
 
 const config: ThemeConfig = {

@@ -1,29 +1,49 @@
-import { NextPage } from 'next'
-import { Heading, Text } from '@chakra-ui/react'
 import { FieldValues } from 'react-hook-form'
+import { useSelector } from 'react-redux'
+import { useRouter } from 'next/router'
+
+import { NextPage } from 'next'
 
 import { SignInValidation } from 'utils/validation'
 
-import { Container } from 'components/Container'
+import { useAppDispatch } from 'state/hooks'
+import { authLoading } from 'state/auth/selectors'
+import { signIn } from 'state/auth/actions'
+
+import AuthWrapper from 'components/Auth/Wrapper'
 import { Form, FormField } from 'components/Form'
 
 const SignIn: NextPage = () => {
-  const onSubmit = (data: FieldValues) => {
-    console.log('SignIn', data)
+  const router = useRouter()
+
+  const dispatch = useAppDispatch()
+
+  const isLoading = useSelector(authLoading)
+
+  const onSubmit = async ({ email, password }: FieldValues) => {
+    const { payload } = await dispatch(
+      signIn({
+        email,
+        password,
+      })
+    )
+    if (payload) {
+      router.push('/dashboard')
+    }
   }
+
   return (
-    <Container>
-      <Heading as="h1" size="xl">
-        Sign In
-      </Heading>
-      <Text>
-        You can login with your registered account or quick login with your Google account.
-      </Text>
-      <Form validation={SignInValidation} text="Sign In" onSubmit={onSubmit}>
-        <FormField name="email" type="email" label="Enter your email" />
-        <FormField name="password" type="password" label="Enter your password" />
+    <AuthWrapper title="Sign In" type="signin">
+      <Form text="Sign In" validation={SignInValidation} loading={isLoading} onSubmit={onSubmit}>
+        <FormField name="email" type="email" label="Email" placeholder="Enter your email" />
+        <FormField
+          name="password"
+          type="password"
+          label="Password"
+          placeholder='Enter your password"'
+        />
       </Form>
-    </Container>
+    </AuthWrapper>
   )
 }
 

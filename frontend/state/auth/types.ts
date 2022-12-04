@@ -16,7 +16,5 @@ export interface TokensTypes {
 }
 
 export interface AuthStateTypes {
-  accessToken: string | null
-  refreshToken: string | null
-  expiresIn: number | null
+  loading: boolean
 }

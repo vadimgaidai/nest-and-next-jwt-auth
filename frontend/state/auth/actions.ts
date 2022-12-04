@@ -20,14 +20,11 @@ export const signUp = createAsyncThunk('auth/signUp', async (data: SignUpTypes) 
   }
 })
 
-export const refreshTokens = createAsyncThunk(
-  'auth/refreshTokens',
-  async (refreshToken: string) => {
-    try {
-      const payload = await AuthApi.refreshTokens(refreshToken)
-      return payload
-    } catch {
-      throw Error('Refresh tokens error')
-    }
+export const getRefreshToken = createAsyncThunk('auth/getRefreshToken', async (token: string) => {
+  try {
+    const payload = await AuthApi.refreshTokens(token)
+    return payload
+  } catch {
+    throw Error('Refresh Token error')
   }
-)
+})

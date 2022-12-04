@@ -1,16 +1,26 @@
 import { FC } from 'react'
-import { Input, Text } from '@chakra-ui/react'
+import { Text } from '@chakra-ui/react'
 import { useFormContext } from 'react-hook-form'
-import { FormFieldProps } from './types'
 
-export const FormField: FC<FormFieldProps> = ({ name, label, type }) => {
+import { FormFieldProps } from './types'
+import { InputStyle, Label, Error } from './styles'
+
+export const FormField: FC<FormFieldProps> = ({ name, label, type, placeholder }) => {
   const { register, formState } = useFormContext()
 
   return (
-    <label htmlFor={name}>
-      {label && <Text>{label}</Text>}
-      <Input {...register(name)} type={type} isInvalid={!!formState.errors[name]} />
-      <span>{formState.errors[name]?.message ? String(formState.errors[name]?.message) : ''}</span>
-    </label>
+    <Label htmlFor={name}>
+      {label && <Text fontWeight="600">{label}</Text>}
+      <InputStyle
+        {...register(name)}
+        size="lg"
+        placeholder={placeholder}
+        type={type}
+        isInvalid={!!formState.errors[name]}
+      />
+      <Error>
+        {formState.errors[name]?.message ? String(formState.errors[name]?.message) : ''}
+      </Error>
+    </Label>
   )
 }

@@ -11,7 +11,7 @@ export const AuthApi = {
     return response
   },
   async refreshTokens(refreshToken: string): Promise<TokensTypes> {
-    const response: TokensTypes = await axios.post('auth/refresh', {
+    const response: TokensTypes = await axios.post('auth/refresh', null, {
       headers: {
         Authorization: `Bearer ${refreshToken}`,
       },

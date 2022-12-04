@@ -1,20 +1,22 @@
-import type { AppProps } from 'next/app'
-
 import Head from 'next/head'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import { ChakraProvider, Grid } from '@chakra-ui/react'
 import { ThemeProvider } from 'styled-components'
+
+import type { AppProps } from 'next/app'
 import theme, { colors } from 'styles/theme'
+import { mediaQueries } from 'styles/breakpoints'
+
+import { persistor, wrapper } from 'state/store'
 
 import { Header } from 'components/Header'
 import Footer from 'components/Footer'
+import AuthGuard from 'components/Auth/Guard'
 
-import { persistor, useStore } from 'state/store'
-import { mediaQueries } from 'styles/breakpoints'
+const MyApp = ({ Component, ...rest }: AppProps) => {
+  const { store, props } = wrapper.useWrappedStore(rest)
 
-const MyApp = ({ Component, pageProps }: AppProps) => {
-  const store = useStore(pageProps.initialReduxState)
   return (
     <Provider store={store}>
       <ThemeProvider theme={{ colors, mediaQueries }}>
@@ -27,7 +29,9 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
           <Grid minHeight="100vh" gridTemplateRows="auto 1fr auto">
             <Header />
             <PersistGate loading={null} persistor={persistor}>
-              <Component {...pageProps} />
+              <AuthGuard>
+                <Component {...props.pageProps} />
+              </AuthGuard>
             </PersistGate>
             <Footer />
           </Grid>

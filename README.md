@@ -4,7 +4,7 @@
 
 ### Frontend
 
-Next.js, Typescript, Redux Toolkit, Styled components
+Next.js, Typescript, Redux Toolkit, Styled components, Chakra UI
 
 ### Backend
 

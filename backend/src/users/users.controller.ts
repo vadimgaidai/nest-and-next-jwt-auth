@@ -20,12 +20,12 @@ import { JwtGuard } from '@/authentication/guards/jwt.guard'
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get()
+  @Get('me')
   @UseGuards(JwtGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   me(@Headers('Authorization') auth: string) {
     let token = null
-    if (typeof auth != 'undefined') {
+    if (typeof auth !== 'undefined') {
       token = auth.replace('Bearer ', '')
     }
     if (!token) {
@@ -35,14 +35,12 @@ export class UsersController {
   }
 
   @Get()
-  @UseGuards(JwtGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   findAll() {
     return this.usersService.findAll()
   }
 
   @Get(':id')
-  @UseGuards(JwtGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id)

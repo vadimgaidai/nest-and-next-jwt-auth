@@ -11,4 +11,5 @@ export type Colors = {
   text: string
   primary: string
   secondary: string
+  error: string
 }
