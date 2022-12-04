@@ -3,16 +3,7 @@ import { AppThunk } from 'state/store'
 import { UserTypes } from './types'
 import { setUser, setUsers } from './slice'
 
-// export const getMeAction = async (ctx?: Context) => {
-//   try {
-//     const payload: UserTypes = await UserApi(ctx).getMe(Cookies.get(ctx).access_token)
-//     return payload
-//   } catch {
-//     throw Error('Get Me error')
-//   }
-// }
-
-export const getUsers = (): AppThunk => async (dispatch) => {
+export const loadUsers = (): AppThunk => async (dispatch) => {
   try {
     const payload: UserTypes[] = await UserApi.users()
     dispatch(setUsers(payload))
@@ -21,7 +12,7 @@ export const getUsers = (): AppThunk => async (dispatch) => {
   }
 }
 
-export const getMeAction = (): AppThunk => async (dispatch) => {
+export const getMe = (): AppThunk => async (dispatch) => {
   try {
     const payload: UserTypes = await UserApi.getMe()
     dispatch(setUser(payload))

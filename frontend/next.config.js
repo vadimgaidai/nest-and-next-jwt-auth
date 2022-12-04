@@ -17,6 +17,10 @@ const nextConfig = {
         source: '/sign-up',
         destination: '/SignUp',
       },
+      {
+        source: '/dashboard',
+        destination: '/Dashboard',
+      },
     ]
   },
 }

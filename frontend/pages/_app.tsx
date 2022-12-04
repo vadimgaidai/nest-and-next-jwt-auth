@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import Head from 'next/head'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
@@ -7,24 +6,16 @@ import { ThemeProvider } from 'styled-components'
 
 import type { AppProps } from 'next/app'
 import theme, { colors } from 'styles/theme'
+import { mediaQueries } from 'styles/breakpoints'
+
+import { persistor, useStore, wrapper } from 'state/store'
 
 import { Header } from 'components/Header'
 import Footer from 'components/Footer'
-
-import { persistor, useStore, wrapper } from 'state/store'
-import { mediaQueries } from 'styles/breakpoints'
-import { getMeAction } from 'state/users/actions'
+import AuthGuard from 'components/Auth/Guard'
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   const store = useStore(pageProps.initialReduxState)
-
-  useEffect(() => {
-    if (store.getState().auth.accessToken && !store.getState().users.user) {
-      ;(async () => {
-        await store.dispatch(getMeAction())
-      })()
-    }
-  }, [])
 
   return (
     <Provider store={store}>
@@ -38,7 +29,9 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
           <Grid minHeight="100vh" gridTemplateRows="auto 1fr auto">
             <Header />
             <PersistGate loading={null} persistor={persistor}>
-              <Component {...pageProps} />
+              <AuthGuard>
+                <Component {...pageProps} />
+              </AuthGuard>
             </PersistGate>
             <Footer />
           </Grid>

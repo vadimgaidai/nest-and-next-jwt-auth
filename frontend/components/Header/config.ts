@@ -5,13 +5,8 @@ export const config = [
     value: 'Home',
   },
   {
-    path: '/SignIn',
-    route: '/sign-in',
-    value: 'Sign In',
-  },
-  {
-    path: '/SignUp',
-    route: '/sign-up',
-    value: 'Sign Up',
+    path: '/Dashboard',
+    route: '/dashboard',
+    value: 'Dashboard',
   },
 ]

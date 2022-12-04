@@ -1,27 +1,35 @@
 import { FieldValues } from 'react-hook-form'
 import { useSelector } from 'react-redux'
+import { useRouter } from 'next/router'
 
 import { NextPage } from 'next'
 
 import { SignInValidation } from 'utils/validation'
+
 import { useAppDispatch } from 'state/hooks'
 import { authLoading } from 'state/auth/selectors'
+import { signIn } from 'state/auth/actions'
 
 import AuthWrapper from 'components/Auth/Wrapper'
 import { Form, FormField } from 'components/Form'
-import { signIn } from 'state/auth/actions'
 
 const SignIn: NextPage = () => {
+  const router = useRouter()
+
   const dispatch = useAppDispatch()
+
   const isLoading = useSelector(authLoading)
 
   const onSubmit = async ({ email, password }: FieldValues) => {
-    await dispatch(
+    const { payload } = await dispatch(
       signIn({
         email,
         password,
       })
     )
+    if (payload) {
+      router.push('/dashboard')
+    }
   }
 
   return (

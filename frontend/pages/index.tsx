@@ -10,12 +10,14 @@ import {
   Tr,
 } from '@chakra-ui/react'
 import { format } from 'date-fns'
+
 import type { NextPage } from 'next'
 
 import { useAppSelector } from 'state/hooks'
 import { selectUsers } from 'state/users/selectors'
 import { wrapper } from 'state/store'
-import { getUsers } from 'state/users/actions'
+import { loadUsers } from 'state/users/actions'
+
 import { Container } from 'components/Container'
 
 const Home: NextPage = () => {
@@ -46,7 +48,7 @@ const Home: NextPage = () => {
   return (
     <Container as="main">
       <TableContainer>
-        <Table>
+        <Table variant="simple">
           <TableCaption>
             <Heading>This is users list</Heading>
           </TableCaption>
@@ -74,8 +76,12 @@ const Home: NextPage = () => {
   )
 }
 
-Home.getInitialProps = wrapper.getInitialPageProps((store) => async () => {
-  await store.dispatch(getUsers())
+export const getStaticProps = wrapper.getStaticProps((store) => async () => {
+  await store.dispatch(loadUsers())
+  return {
+    props: {},
+    revalidate: 900,
+  }
 })
 
 export default Home
